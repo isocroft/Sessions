@@ -23,16 +23,44 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var sessions = (function(sessions) {
+'use strict';
+
+!function(name, defs){ 
+ 
+if(!defs.locked){ // define only once!!
+
+     var hOwn = ({}).hasOwnProperty;
+     // CommonJS standard --- NodeJS
+     if(typeof module != "undefined" && hOwn.call(module, "exports"))
+          module.exports = defs( {} );
+     // AMD Standard ---- RequireJS     
+     else if(typeof define == "function" && hOwn.call(define, "amd"))
+          define(function(){ return def( {} ); });
+     // Normal JS
+     else
+       this[name] = defs( {} );
+       
+    defs.locked = true;   
+}       
+
+}( "sessions", function(sessions) {
+	        
+	      
 		var _idle_flag = false,
-			_idle_counter = 0,
+		        d = document,
+		        lastTime,
+		//	_idle_counter = 0, instead of using a counter, use a time difference (now - later) ...
 			check_idle_time,
 			IDLE_PERIOD,
 			_idle_check,
 			idle_elem,
 			events,
+			l,
+			eventMap = ["click", "mousemove", "keypress"],
+			rgX = new RegExp("^("+eventMap.join("|")+")$"),
 			url,
-			run;
+			run,
+			doc_event_register = d.addEventListener || d.attachEvent;
 
 		_idle_check = function() {
 			if (_idle_flag) {
@@ -42,23 +70,27 @@ var sessions = (function(sessions) {
 			}
 		};
 
-		events = function(e) {
-			if (e.type == "click" || e.type == "mousemove" || e.type == "keypress")
+		events = function(e) { // any time an user becomes active, extend the time for log out!
+			if (e.type.match(rgX) != null)
 				_idle_check();
 		};
 
-		document.onclick = document.onmousemove = document.onkeypress = events;
+                // when you go with the below, what if the user set handlers for these event direcly on the document??
+		/** document.onclick = document.onmousemove = document.onkeypress = events; **/
+		
+		for(l = 0; l < eventMap.length; l++)
+		     doc_event_register.call(d, (? "on"+eventMap[l] : eventMap[l]), events, false);
 
 		check_idle_time = function(elem, tm) {
 			++_idle_counter;
-			if (elem !== '') {
+			if (elem && typeof elem.nodeType == "number") {
 				elem.style.display = 'block';
 				elem.innerHTML = (IDLE_PERIOD - _idle_counter) + '';
-		}
-		if (_idle_counter == IDLE_PERIOD) _idle_flag = true;
-
-		return _idle_flag;
-	};
+		        }
+		     if (_idle_counter == IDLE_PERIOD) _idle_flag = true;
+                     
+		     return _idle_flag;
+	        };
 
 	sessions.init = function(mUrl, opt) {
 		var opt = opt || {};
@@ -66,11 +98,14 @@ var sessions = (function(sessions) {
 		url = ( !! mUrl && typeof mUrl === 'string') ? mUrl : '';
 		IDLE_PERIOD = ( !! opt.time && typeof opt.time === 'number') ? opt.time : 20 * 60;
 
-		run = window.setInterval(function() {
-			var rep = check_idle_time(idle_elem, IDLE_PERIOD);
-			if (rep) clearTimeout(run);
-		}, 1000);
+		/**run = window.setTimeout(function() { **/
+			if(!check_idle_time(idle_elem, IDLE_PERIOD)){
+		           	
+			}
+		/** }, 1000); **/
 	};
+	
+	 
 
 	return sessions;
-})(sessions || {});
+});
