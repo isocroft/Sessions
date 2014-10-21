@@ -49,30 +49,22 @@ if(!defs.locked){ // define only once!!
 		var _idle_flag = false,
 		        d = document,
 		        lastTime,
-		//	_idle_counter = 0, instead of using a counter, use a time difference (now - later) ...
+			_idle_counter = 0, 
 			check_idle_time,
 			IDLE_PERIOD,
-			_idle_check,
 			idle_elem,
 			events,
 			l,
 			eventMap = ["click", "mousemove", "keypress"],
 			rgX = new RegExp("^("+eventMap.join("|")+")$"),
 			url,
-			run,
 			doc_event_register = d.addEventListener || d.attachEvent;
 
-		_idle_check = function() {
-			if (_idle_flag) {
-				if (_idle_counter >= IDLE_PERIOD) document.location.href = url;
-			} else {
-				_idle_counter = 0;
-			}
-		};
+		
 
-		events = function(e) { // any time an user becomes active, extend the time for log out!
+		events = function(e) { 
 			if (e.type.match(rgX) != null)
-				_idle_check();
+				_idle_counter = 0; // any time an user becomes active, extend the time for log out!
 		};
 
                 // when you go with the below, what if the user set handlers for these event direcly on the document??
@@ -82,14 +74,19 @@ if(!defs.locked){ // define only once!!
 		     doc_event_register.call(d, (? "on"+eventMap[l] : eventMap[l]), events, false);
 
 		check_idle_time = function(elem, tm) {
-			++_idle_counter;
+			var now = (ne Dtae).getTime();
+			    diff = now - lastTime;
 			if (elem && typeof elem.nodeType == "number") {
 				elem.style.display = 'block';
 				elem.innerHTML = (IDLE_PERIOD - _idle_counter) + '';
 		        }
-		     if (_idle_counter == IDLE_PERIOD) _idle_flag = true;
+		     if (_idle_counter >= IDLE_PERIOD) _idle_flag = true;
                      
-		     return _idle_flag;
+		     if (_idle_flag) { // if time is up before the user gets a chance to become active, then log user out
+			    document.location.href = url;
+		     } 
+		     lastTime = now;
+		     _idle_counter += diff; // add how much time has passed since we started checkin --- sessions.init
 	        };
 
 	sessions.init = function(mUrl, opt) {
@@ -100,7 +97,7 @@ if(!defs.locked){ // define only once!!
 
 		/**run = window.setTimeout(function() { **/
 			if(!check_idle_time(idle_elem, IDLE_PERIOD)){
-		           	
+		             setTimeout(arguments.callee.bind(null, mUrl, opt), 0);
 			}
 		/** }, 1000); **/
 	};
