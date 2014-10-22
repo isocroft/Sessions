@@ -1,11 +1,12 @@
 {
 "name":"Sessions",
 "version":"0.0.0",
-"description":"",
+"description":"Handles session termination on the client side by monitoring user's inactivity for a specified period ",
 "keywords":[
-  "log out",
-  "sessions",
-  "timeout"
+  "logs out",
+  "session",
+  "inactivity",
+  "redirects"
 ],
 "contributors":[
   "Ifeora Okechukwu <isocroft@gmail.com>",
@@ -28,7 +29,7 @@ bugs:{
 "licenses":[
    {
       "type": "MIT",
-      "url": "http://github.com/emmysteven/Sessions/raw/master/LICENSE"
+      "url": "http://github.com/isocroft/Sessions/tree/$sess/LICENSE"
     }
 ],
 "authors":[
