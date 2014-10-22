@@ -58,6 +58,7 @@ var sessions = (function(sessions) {
 		if (_idle_counter == IDLE_PERIOD) _idle_flag = true;
 
 		return _idle_flag;
+	
 	};
 
 	sessions.init = function(mUrl, opt) {
