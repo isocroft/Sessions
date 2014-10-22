@@ -4,6 +4,7 @@
 "description":"Handles session termination on the client side by monitoring user's inactivity for a specified period ",
 "keywords":[
   "logs out",
+  "user's"
   "session",
   "inactivity",
   "redirects"
@@ -18,7 +19,7 @@
 "devDependencies":{
   "es5-shim":"~4.0.3"
 },
-bugs:{
+"bugs":{
   "mail":"emmysteven@gmail.com",
   "url":"http://github.com/emmysteven/Sessions/issues"
 },
