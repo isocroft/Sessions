@@ -1,0 +1,40 @@
+{
+"name":"Sessions",
+"version":"0.0.0",
+"description":"",
+"keywords":[
+  "log out",
+  "sessions",
+  "timeout"
+],
+"contributors":[
+  "Ifeora Okechukwu <isocroft@gmail.com>",
+  "Emmy Steven <emmysteven@gmail.com>"
+],
+"engines": {
+    "node": ">=0.4.0"
+  },
+"devDependencies":{
+  "es5-shim":"~4.0.3"
+},
+bugs:{
+  "mail":"emmysteven@gmail.com",
+  "url":"http://github.com/emmysteven/Sessions/issues"
+},
+"repository":{
+  "type":"git",
+  "url":"http://github.com/emmysteven/Sessions.git"
+},
+"licenses":[
+   {
+      "type": "MIT",
+      "url": "http://github.com/emmysteven/Sessions/raw/master/LICENSE"
+    }
+],
+"authors":[
+  "Ifeora Okechukwu <isocroft@gmail.com>",
+  "Emmy Steven <emmysteven@gmail.com>"
+],
+"homepage":"http://github.com/emmysteven/Sessions",
+"main":"sessions.js"
+}
