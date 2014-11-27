@@ -42,15 +42,15 @@
        
 }( "sessions", function(sessions) {
 	        
-		var _idle_flag = false,
+	            var _idle_flag = false,
 		        d = document,
 		        lastTime,
 			_idle_counter = 0, 
 			check_idle_time,
 			IDLE_PERIOD,
 			idle_elem,
-			events,
 			l,
+			set = false,
 			eventMap = ["click", "mousemove", "keypress"],
 			rgX = new RegExp("^("+eventMap.join("|")+")$"),
 			run,
@@ -63,44 +63,51 @@
 		        	}    
 	         	};
 
-                // when you go with the below, what if the user set handlers for these event direcly on the document object??
+                // when you go with the below, what if the user set handlers for these events direcly on the document object??
 		/** document.onclick = document.onmousemove = document.onkeypress = events; **/
 		
 		for(l = 0; l < eventMap.length; l++)
-		     doc_event_register.call(d, (d.all? "on"+eventMap[l] : eventMap[l]), events, false);
+		     doc_event_register.call(d, (d.all? "on"+eventMap[l] : eventMap[l]), events, false); /* this doesn't ovveride existing event/event handler registrations but adds to them */
 
 		check_idle_time = function(elem, tm) {
 			var now = (new Date()).getTime();
 			    diff = now - (lastTime || now);
 			if (elem && typeof elem.nodeType == "number") {
 				elem.style.display = 'block';
-				elem.innerHTML = (IDLE_PERIOD - _idle_counter) + '';
+				elem.innerHTML = (IDLE_PERIOD - _idle_counter) + 'remaining...';
 		        }
 		     if (_idle_counter >= IDLE_PERIOD) _idle_flag = true;
                      
 		     if (_idle_flag) { // if time is up before the user gets a chance to become active, then log user out
 		            if(run) clearTimeout(run);
-			        document.location.href = url;
+		            lastTime = rgX = eventMap = null;
+			    document.location.href = url;
 		     }else{ // else add how much time has passed since we started checkin --- sessions.init
 		        lastTime = now;
 		        _idle_counter += diff;
 		     }
 		       return _idle_flag;
 	        };
-
-	sessions.init = function(mUrl, opt) {
+	/* this routine should be called once to configure "sessions", then tack the closure defintion onto the "sessions" object */
+	sessions.config = function(mUrl, opt){
+		
 		var opt = opt || {};
 		idle_elem = ( !! opt.element && typeof opt.element === 'string') ? document.getElementById(opt.element) : (document.body || document.getElementsByTagName("body")[0]);
-		url = ( !! mUrl && typeof mUrl === 'string') ? mUrl : '';
+		url = ( !! mUrl && typeof mUrl === 'string') ? mUrl : document.referrer;
 		IDLE_PERIOD = ( !! opt.time && typeof opt.time === 'number') ? opt.time : 20 * 60;
-
+		set = true;
+	}
+	        
+        /* tack the worker routine onto the "sessions" object as well */
+	sessions.engage = function() {
+                if(!!set){
+	        	if(check_idle_time && !check_idle_time(idle_elem, IDLE_PERIOD)){
+		             run = setTimeout(arguments.callee.bind(sessions, mUrl, opt), 0); /* bind is not supported by old IE browsers anyway ! - fix this later */
+		             return; /* break flow of control here else we risk reseting "opt" members */
+		        }
+                } 
 		
-		if(!check_idle_time(idle_elem, IDLE_PERIOD)){
-		     run = setTimeout(arguments.callee.bind(null, mUrl, opt), 0); /* bind is not supported by old IE browsers anyway ! */
-		     return; /* break flow of control here else we risk reseting "opt" members */
-		}
-		
-		opt = idle_elem = url = IDLE_PERIOD = null; /** clear stack memory -- just in case **/
+		check_idle_time = idle_elem = url = set = IDLE_PERIOD = null; /** once we are done, clear stack frame memory -- just in case GC is slow **/
 	};
 	
 	 
