@@ -26,26 +26,20 @@
 'use strict';
 
 !function(name, defs){ 
- 
-if(!defs.locked){ // define only once!!
-
-     var hOwn = ({}).hasOwnProperty;
+ /**** THIS IS UMD (Universal Module Definition) for all environments *****/
+     var hOwn = ({}).hasOwnProperty, sessions = {};
      // CommonJS standard --- NodeJS
      if(typeof module != "undefined" && hOwn.call(module, "exports"))
-          module.exports = defs( {} );
+          module.exports = defs( sessions );
      // AMD Standard ---- RequireJS     
      else if(typeof define == "function" && hOwn.call(define, "amd"))
-          define(function(){ return def( {} ); });
+          define(function(){ return def( sessions ); });
      // Normal JS
      else
-       this[name] = defs( {} );
+       this[name] = defs( sessions );
        
-    defs.locked = true;   
-}       
-
 }( "sessions", function(sessions) {
 	        
-	      
 		var _idle_flag = false,
 		        d = document,
 		        lastTime,
@@ -59,18 +53,15 @@ if(!defs.locked){ // define only once!!
 			rgX = new RegExp("^("+eventMap.join("|")+")$"),
 			run,
 			url,
-			doc_event_register = d.addEventListener || d.attachEvent;
+			doc_event_register = d.addEventListener || d.attachEvent,
+			events = function(e) { 
+		         	if (e.type.match(rgX) != null){
+			             lastTime = null;
+			             _idle_counter = 0; // any time the user becomes active, extend the time for log out!
+		        	}    
+	         	};
 
-		
-
-		events = function(e) { 
-			if (e.type.match(rgX) != null){
-			    lastTime = null;
-			    _idle_counter = 0; // any time an user becomes active, extend the time for log out!
-			}    
-		};
-
-                // when you go with the below, what if the user set handlers for these event direcly on the document??
+                // when you go with the below, what if the user set handlers for these event direcly on the document object??
 		/** document.onclick = document.onmousemove = document.onkeypress = events; **/
 		
 		for(l = 0; l < eventMap.length; l++)
@@ -97,17 +88,17 @@ if(!defs.locked){ // define only once!!
 
 	sessions.init = function(mUrl, opt) {
 		var opt = opt || {};
-		idle_elem = ( !! opt.element && typeof opt.element === 'string') ? document.getElementById(opt.element) : '';
+		idle_elem = ( !! opt.element && typeof opt.element === 'string') ? document.getElementById(opt.element) : (document.body || document.getElementsByTagName("body")[0]);
 		url = ( !! mUrl && typeof mUrl === 'string') ? mUrl : '';
 		IDLE_PERIOD = ( !! opt.time && typeof opt.time === 'number') ? opt.time : 20 * 60;
 
-		/**run = window.setInterval(function() { **/
-			if(!check_idle_time(idle_elem, IDLE_PERIOD)){
-		             run = setTimeout(arguments.callee.bind(null, mUrl, opt), 0);
-			}
-		/** }, 1000); **/
 		
-		opt = idle_elem = url = IDLE_PERIOD = null; /** clear stack memory -- just in cse **/
+		if(!check_idle_time(idle_elem, IDLE_PERIOD)){
+		     run = setTimeout(arguments.callee.bind(null, mUrl, opt), 0); /* bind is not supported by old IE browsers anyway ! */
+		     return; /* break flow of control here else we risk reseting "opt" members */
+		}
+		
+		opt = idle_elem = url = IDLE_PERIOD = null; /** clear stack memory -- just in case **/
 	};
 	
 	 
