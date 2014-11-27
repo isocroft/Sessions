@@ -96,13 +96,14 @@
 		url = ( !! mUrl && typeof mUrl === 'string') ? mUrl : document.referrer;
 		IDLE_PERIOD = ( !! opt.time && typeof opt.time === 'number') ? opt.time : 20 * 60;
 		set = true;
+		
 	}
 	        
         /* tack the worker routine onto the "sessions" object as well */
 	sessions.engage = function() {
                 if(!!set){
 	        	if(check_idle_time && !check_idle_time(idle_elem, IDLE_PERIOD)){
-		             run = setTimeout(arguments.callee.bind(sessions, mUrl, opt), 0); /* bind is not supported by old IE browsers anyway ! - fix this later */
+		             run = setTimeout(arguments.callee.bind(sessions), 0); /* bind is not supported by old IE browsers anyway ! - fix this later */
 		             return; /* break flow of control here else we risk reseting "opt" members */
 		        }
                 } 
