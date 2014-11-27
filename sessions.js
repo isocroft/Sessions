@@ -23,9 +23,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-'use strict';
 
 !function(name, defs){ 
+
+ 'use strict';
+	
  /**** THIS IS UMD (Universal Module Definition) for all environments *****/
      var hOwn = ({}).hasOwnProperty, sessions = {};
      // CommonJS standard --- NodeJS
@@ -34,7 +36,7 @@
      // AMD Standard ---- RequireJS     
      else if(typeof define == "function" && hOwn.call(define, "amd"))
           define(function(){ return def( sessions ); });
-     // Normal JS
+     // Normal JS ---- also for Bower
      else
        this[name] = defs( sessions );
        
